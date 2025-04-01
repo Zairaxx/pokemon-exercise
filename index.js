@@ -80,7 +80,9 @@ async function fetchPokemonData(url) {
     const moveUrls = data.moves.slice(0,5).map(move => move.move.url);
     let movesPromises = moveUrls.map(url => getData(url));
     let moves = await Promise.all(movesPromises);
+
     console.log(moves);
+    
     const pokemon = new Pokemon(
         data.name,
         data.height,
