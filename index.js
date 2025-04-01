@@ -12,13 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 class Pokemon {
-    constructor(name, height, weight, attack, defense, imageUrl, moves) {
+    constructor(name, height, weight, attack, defense, imageUrl, hp, types, moves) {
         this.name = name;
         this.height = height;
         this.weight = weight;
         this.attack = attack;
         this.defense = defense;
         this.imageUrl = imageUrl;
+        this.hp = hp;
+        this.types = types;
         this.moves = moves;
     }
 }
@@ -76,8 +78,9 @@ async function fetchPokemonData(url) {
     let response = await fetch(url);
     let data = await response.json();
 
-    //Fetch moves for the Pokemon
+    // //Fetch moves for the Pokemon
     const moveUrls = data.moves.slice(0,5).map(move => move.move.url);
+
     let movesPromises = moveUrls.map(url => getData(url));
     let moves = await Promise.all(movesPromises);
 
@@ -90,22 +93,29 @@ async function fetchPokemonData(url) {
         data.stats.find(stat => stat.stat.name === "attack").base_stat,
         data.stats.find(stat => stat.stat.name === "defense").base_stat,
         data.sprites.front_default,
+        data.stats.find(stat => stat.stat.name === "hp").base_stat,
+        data.types.map(type => type.type.name),
         moves
     );
+
     displayPokemonData(pokemon);
 }
 
 function displayPokemonData(pokemon) {
     const infoDiv = document.getElementById("pokemon-info");
+    console.log(pokemon)
+    console.log(pokemon.moves.map(move => `<p>${move.name} - ${move.power || 0} Power</p>`))
     infoDiv.innerHTML = `
         <h2>${pokemon.name}</h2>
         <img src="${pokemon.imageUrl}" alt="${pokemon.name}">
+        <p>HP: ${pokemon.hp}</p>
         <p>Height: ${pokemon.height}</p>
         <p>Weight: ${pokemon.weight}</p>
         <p>Attack: ${pokemon.attack}</p>
         <p>Defense: ${pokemon.defense}</p>
+        <p>Type(s): ${pokemon.types.join(", ")} </p>
         <h3>Moves</h3>
-        ${pokemon.moves.map(move => `<p>${move.name} - ${move.power || 0} Power</p>`).join("")}
+        ${pokemon.moves.map(move => `<p>${move.name} - ${move.power || 0} Power</p>`).join(" ")}
     `;
 }
 
